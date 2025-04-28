@@ -4,63 +4,58 @@ import { sendEmailCode } from "./authCode.services.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
-// -- CADASTRO DE USUARIO NO BANCO DE DADOS --
+// REGISTER NEW USER
 async function registerUser(name, lastName, email, password) {
-  // VERIFICA CONTA EXISTENTE
+  // VERIFY ACCOUNT
   const user = await User.findOne({ where: { email } });
   if (user) throw new BadRequestError("Usuário já cadastrado no nosso sistema");
 
   const hashPassword = await bcrypt.hash(
     password,
     Number(process.env.SALT_ROUNDS)
-  ); // HASH DA SENHA
+  );
 
-  // REGISTRA USUARIO NO BANCO
   const newUser = await User.create({
     name,
     lastName,
     nameUser: `${name} ${lastName}`,
     email,
     password: hashPassword,
-    emailActive: false,
   });
 
-  // ✅ CRIA DOIS TELEFONES VAZIOS
+  // CREATE PHONES
   await Phone.create({ phoneNumber: null, userId: newUser.id });
   await Phone.create({ phoneNumber: null, userId: newUser.id });
 
-  await sendEmailCode(email);
+  // SEND CODE TO EMAIL
+  await sendEmailCode(newUser.id);
 
-  const returnUser = await User.findOne({
-    where: { email },
-    include: [{ model: Phone }, { model: UrlVerificationToken }],
-  });
-
-  return returnUser;
+  return newUser.id;
 }
-
+// LOGIN
+// VERIFY EMAIL AND PASSWORD
 async function loginUser(email, password) {
   const user = await User.findOne({ where: { email } });
   if (!user)
     throw new BadRequestError("Usuário não encontrado em nosso sistema");
-
-  console.log(user.password);
-  console.log(password);
 
   const passwordVerified = await bcrypt.compare(password, user.password);
   if (!passwordVerified) throw new BadRequestError("Senha incorreta");
 
   const returnUser = await User.findOne({
     where: { email },
-    include: {
-      model: Phone,
-    },
+    attributes: ["id", "email", "nameUser"],
+    include: [
+      {
+        model: Phone,
+        attributes: ["phoneNumber"],
+      },
+    ],
   });
 
   return returnUser;
 }
-
-// -- ASSINATURA DE TOKENS --
+// TOKEN SIGNATURE
 async function signTokenJwt(email) {
   const secretAccess = process.env.JWT_SECRET_ACCESS;
   const secretRefresh = process.env.JWT_SECRET_REFRESH;
@@ -73,22 +68,17 @@ async function signTokenJwt(email) {
 
   return { accessToken, refreshToken };
 }
-
+// VERIFY EMAIL USER
 async function emailUser(email) {
   const user = await User.findOne({ where: { email } });
   if (!user)
     throw new BadRequestError("Usuário não encontrado em nosso sistema");
 
-  const tokenUser = await UrlVerificationToken.findOne({
-    where: { userId: user.id },
-    attributes: ["token"],
-  });
-
-  if (!tokenUser) throw new BadRequestError("Token de usuário não encontrado");
-
+  // SERVICE
+  // SEND CODE TO EMAIL
   await sendEmailCode(email);
 
-  return tokenUser;
+  return user.id;
 }
 
 export { registerUser, loginUser, signTokenJwt, emailUser };

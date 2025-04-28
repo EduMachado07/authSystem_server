@@ -12,8 +12,13 @@ import {
 
 export const authRoute = express.Router();
 
+// REGISTER NEW USER
 authRoute.post("/register", Register);
+// LOGIN
 authRoute.post("/login", Login);
-authRoute.post("/send-code", SendAuthCode);
+// VERIFY EMAIL USER
+authRoute.post("/verify-email", VerifyEmail);
+// VERIFY CODE USER
 authRoute.post("/verify-code", VerifyAuthCode);
-authRoute.post("/alter-password", VerifyEmail);
+// SEND CODE USER
+authRoute.post("/send-code", SendAuthCode);

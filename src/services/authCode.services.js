@@ -1,56 +1,56 @@
-import { User, UrlVerificationToken } from "../models/user.models.js";
+import { User, Phone } from "../models/user.models.js";
 import sendEmail from "../middlewares/sendEmail.middlewares.js";
 import {
   BadRequestError,
   UnauthorizedError,
 } from "../config/classErrors.config.js";
-import crypto from "crypto";
+// import crypto from "crypto";
 
-// -- VERIFICA CODIGO DE EMAIL --
-async function sendEmailCode(email) {
-  const verificationToken = crypto.randomBytes(32).toString("hex");
+// CREATE AND SEND CODE
+async function sendEmailCode(id) {
+  const user = await User.findOne({ where: { id } });
 
-  const user = await User.findOne({ where: { email } });
+  if (!user) throw new Error("Usuário não encontrado");
 
-  await UrlVerificationToken.create({
-    userId: user.id,
-    token: verificationToken,
-    // expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
-  });
-
+  // CREATE CODE
   const generateCode = () =>
     Math.floor(100000 + Math.random() * 900000).toString();
-  const verificationCode = generateCode(); // CODIGO VERIFICACAO
+  const verificationCode = generateCode();
 
-  // REGISTRA CODIGO DO USUARIO NO BANCO
   user.verificationCode = verificationCode;
   await user.save();
 
-  // ENVIA EMAIL
-  await sendEmail(email, verificationCode, verificationToken);
+  // MIDDLEWARE SEND CODE TO EMAIL
+  await sendEmail(user.email, verificationCode, user.id);
 
   return;
 }
 
-// -- VERIFICA CODIGO DE EMAIL --
-async function verifyAuthCode(token, code) {
-  const userToken = await UrlVerificationToken.findOne({ where: { token } });
-
-  if (!userToken) throw new BadRequestError("Token inválido ou expirado");
-
-  // VERIFICA CONTA EXISTENTE
-  const user = await User.findOne({ where: { id: userToken.userId } });
+// VERIFIY CODE
+async function verifyAuthCode(idUser, code) {
+  // VERIFY ACCOUNT
+  const user = await User.findOne({ where: { id: idUser } });
 
   if (!user) throw new BadRequestError("Usuário não encontrado");
-  if (user.emailActive) throw new BadRequestError("Email já está ativo");
+  // if (user.emailActive) throw new BadRequestError("Email já está ativo");
   if (user.verificationCode !== parseInt(code))
     throw new UnauthorizedError("Código informado está incorreto");
 
   user.verificationCode = null;
-  // user.emailActive = true;
   await user.save();
 
-  return user;
+  const returnUser = await User.findOne({
+    where: { id: idUser },
+    attributes: ["id", "email", "nameUser"],
+    include: [
+      {
+        model: Phone,
+        attributes: ["phoneNumber"],
+      },
+    ],
+  });
+
+  return returnUser;
 }
 
 export { verifyAuthCode, sendEmailCode };

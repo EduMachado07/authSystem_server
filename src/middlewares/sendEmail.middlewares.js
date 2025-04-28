@@ -17,8 +17,8 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-async function sendEmail(email, code, urlToken) {
-  const linkVerification = `${process.env.CLIENT_VERIFY_CODE}?token=${urlToken}`;
+async function sendEmail(email, code, urlUser) {
+  const linkVerification = `${process.env.CLIENT_VERIFY_CODE}?token=${urlUser}`;
   try {
     await transporter.sendMail({
       from: "Eduardo Machado <onboarding@resend.dev>",

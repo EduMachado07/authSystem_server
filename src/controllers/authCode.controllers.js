@@ -3,27 +3,32 @@ import {
   verifyAuthCode,
 } from "../services/authCode.services.js";
 import { BadRequestError } from "../config/classErrors.config.js";
-// ENVIA EMAIL COM CODIGO
+
+// CREATE CODE
 async function SendAuthCode(req, res, next) {
   try {
-    const { email } = req.body;
-    if (!email) throw new BadRequestError("Email do usuário não informado");
+    const { idUser } = req.body;
+    if (!idUser) throw new BadRequestError("Email do usuário não informado");
 
-    await sendEmailCode(email);
+    // SERVICE
+    await sendEmailCode(idUser);
 
-    res.status(201).json({ message: `Código enviado para o email ${email}` });
+    res
+      .status(201)
+      .json({ message: "Código enviado para o seu email", user: idUser });
   } catch (error) {
     next(error);
   }
 }
-// VERIFICA O CODIGO
+// VERIFY CODE
 async function VerifyAuthCode(req, res, next) {
   try {
-    const { token, code } = req.body;
-    if (!token || !code)
+    const { idUser, code } = req.body;
+    if (!idUser || !code)
       throw new BadRequestError("Dados do usuário não informados");
 
-    await verifyAuthCode(token, code);
+    // SERVICE
+    await verifyAuthCode(idUser, code);
 
     res.status(201).json({ message: "email do usuário verificado" });
   } catch (error) {

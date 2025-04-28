@@ -4,7 +4,7 @@ export const connectBd = async () => {
   try {
     await database.authenticate();
 
-    await database.sync({ force: false });
+    await database.sync({ force: true });
     // await database.sync({ alter: true });
 
     console.log("--------");

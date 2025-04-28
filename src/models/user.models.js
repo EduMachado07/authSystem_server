@@ -1,51 +1,32 @@
 import { DataTypes } from "sequelize";
 import database from "../config/database.config.js";
 
-export const User = database.define(
-  "user",
-  {
-    id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
-      allowNull: false,
-      primaryKey: true,
-    },
-    name: {
-      type: DataTypes.STRING(50),
-      allowNull: false,
-    },
-    lastName: {
-      type: DataTypes.STRING(100),
-      allowNull: false,
-    },
-    nameUser: {
-      type: DataTypes.STRING(150),
-      allowNull: false,
-    },
-    email: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true,
-    },
-    password: {
-      type: DataTypes.STRING(),
-      allowNull: false,
-    },
-    verificationCode: {
-      type: DataTypes.INTEGER,
-    },
-    emailActive: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-    },
-  }
-  // {
-  //   defaultScope: {
-  //     attributes: { exclude: ["password"] },
-  //   },
-  // }
-);
-
+// USER
+export const User = database.define("user", {
+  id: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    allowNull: false,
+    primaryKey: true,
+  },
+  nameUser: {
+    type: DataTypes.STRING(150),
+    allowNull: false,
+  },
+  email: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true,
+  },
+  password: {
+    type: DataTypes.STRING(),
+    allowNull: false,
+  },
+  verificationCode: {
+    type: DataTypes.INTEGER,
+  },
+});
+// PHONES
 export const Phone = database.define(
   "phone",
   {
@@ -74,6 +55,7 @@ export const Phone = database.define(
     },
   }
 );
+// USER TOKEN
 export const UrlVerificationToken = database.define("UrlVerificationToken", {
   userId: {
     type: DataTypes.INTEGER,
@@ -89,6 +71,8 @@ export const UrlVerificationToken = database.define("UrlVerificationToken", {
   // },
 });
 
+// RELATIONSHIPS
+// user and phone
 User.hasMany(Phone, {
   foreignKey: "userId",
   onDelete: "CASCADE",
@@ -96,6 +80,7 @@ User.hasMany(Phone, {
 Phone.belongsTo(User, {
   foreignKey: "userId",
 });
+// user and token
 User.hasMany(UrlVerificationToken, {
   foreignKey: "userId",
   onDelete: "CASCADE",

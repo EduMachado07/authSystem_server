@@ -1,4 +1,4 @@
-import { User, Phone, UrlVerificationToken } from "../models/user.models.js";
+import { User, Phone } from "../models/user.models.js";
 import { BadRequestError } from "../config/classErrors.config.js";
 import { sendEmailCode } from "./authCode.services.js";
 import bcrypt from "bcrypt";

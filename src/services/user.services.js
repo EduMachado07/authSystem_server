@@ -3,8 +3,8 @@ import { BadRequestError } from "../config/classErrors.config.js";
 import { sendEmailCode } from "./authCode.services.js";
 import bcrypt from "bcrypt";
 
-async function newNameUser(email, nameUser) {
-  const user = await User.findOne({ where: { email } });
+async function newNameUser(id, nameUser) {
+  const user = await User.findOne({ where: { id } });
   if (!user) throw new BadRequestError("usuário não encontrado");
 
   if (user.nameUser === nameUser) {
@@ -16,8 +16,8 @@ async function newNameUser(email, nameUser) {
 
   return user;
 }
-async function newEmail(email, newAdressEmail) {
-  const user = await User.findOne({ where: { email } });
+async function newEmail(id, newAdressEmail) {
+  const user = await User.findOne({ where: { id } });
   if (!user) throw new BadRequestError("Usuário não encontrado");
 
   // VERIFICA SE O NOVO EMAIL JÁ EXISTE NO BANCO DE DADOS
@@ -40,8 +40,8 @@ async function newEmail(email, newAdressEmail) {
 
   return user;
 }
-async function newPassword(email, password) {
-  const user = await User.findOne({ where: { email } });
+async function newPassword(id, password) {
+  const user = await User.findOne({ where: { id } });
   if (!user) throw new BadRequestError("usuário não encontrado");
 
   const isSamePassword = await bcrypt.compare(password, user.password);
@@ -59,9 +59,9 @@ async function newPassword(email, password) {
 
   return user;
 }
-async function newPhones(email, firstPhoneNumber, secondPhoneNumber) {
+async function newPhones(id, firstPhoneNumber, secondPhoneNumber) {
   // PROCURA USUARIO
-  const user = await User.findOne({ where: { email } });
+  const user = await User.findOne({ where: { id } });
   if (!user) throw new BadRequestError("usuário não encontrado");
 
   // PROCURA OS TELEFONES EM ORDEM
@@ -87,10 +87,10 @@ async function newPhones(email, firstPhoneNumber, secondPhoneNumber) {
 
   return user;
 }
-async function getUser(email) {
+async function getUser(id) {
   // PROCURA USUARIO
   const user = await User.findOne({
-    where: { email },
+    where: { id },
     include: {
       model: Phone,
     },
@@ -99,9 +99,9 @@ async function getUser(email) {
 
   return user;
 }
-async function deleteUser(email) {
+async function deleteUser(id) {
   // PROCURA USUARIO
-  const user = await User.findOne({ where: { email } });
+  const user = await User.findOne({ where: { id } });
   if (!user) throw new BadRequestError("usuário não encontrado");
 
   // REMOVE USUARIO DO BANCO DE DADOS

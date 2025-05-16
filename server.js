@@ -7,7 +7,7 @@ const port = process.env.PORT_SERVER;
 
 (async () => {
   try {
-    await connectBd();
+    // await connectBd();
 
     app.listen(port, () => {
       console.log(`App de exemplo esta rodando na porta ${port}`);

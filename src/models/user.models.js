@@ -55,21 +55,6 @@ export const Phone = database.define(
     },
   }
 );
-// USER TOKEN
-export const UrlVerificationToken = database.define("UrlVerificationToken", {
-  userId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-  },
-  token: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  // expiresAt: {
-  //   type: DataTypes.DATE,
-  //   allowNull: false,
-  // },
-});
 
 // RELATIONSHIPS
 // user and phone
@@ -78,13 +63,5 @@ User.hasMany(Phone, {
   onDelete: "CASCADE",
 });
 Phone.belongsTo(User, {
-  foreignKey: "userId",
-});
-// user and token
-User.hasMany(UrlVerificationToken, {
-  foreignKey: "userId",
-  onDelete: "CASCADE",
-});
-UrlVerificationToken.belongsTo(User, {
   foreignKey: "userId",
 });

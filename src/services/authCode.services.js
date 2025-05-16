@@ -27,9 +27,9 @@ async function sendEmailCode(id) {
 }
 
 // VERIFIY CODE
-async function verifyAuthCode(idUser, code) {
+async function verifyAuthCode(id, code) {
   // VERIFY ACCOUNT
-  const user = await User.findOne({ where: { id: idUser } });
+  const user = await User.findOne({ where: { id  } });
 
   if (!user) throw new BadRequestError("Usuário não encontrado");
   // if (user.emailActive) throw new BadRequestError("Email já está ativo");
@@ -40,7 +40,7 @@ async function verifyAuthCode(idUser, code) {
   await user.save();
 
   const returnUser = await User.findOne({
-    where: { id: idUser },
+    where: { id  },
     attributes: ["id", "email", "nameUser"],
     include: [
       {
